@@ -15,22 +15,25 @@ class Review extends Model
         'description',
     ];
 
-    public function members(){
-        return $this->belongsToMany(User::class);
+    public static function members(Review $review){
+        return User::join('review_users','review_users.user_id','=','users.id')
+        ->where('review_users.review_id',$review->id)->get();
     }
-    public function areas(){
-        return $this->belongsToMany(Area::class);
+    public static function areas(Review $review){
+        return Area::join('review_areas','review_areas.area_id','=','areas.id')
+        ->where('review_areas.review_id',$review->id)->get();
     }
 
     public static function build(Review $review){
-        $members = User::setUserArray($review->members);
+        $members = User::setUserArray(self::members($review));
 
         return [
+            "id"=>$review->id,
             "title"=>$review->title,
             "question"=>$review->question,
             "description"=>$review->description,
             "instituition"=>$review->title,
-            "areas"=>$review->areas,
+            "areas"=>self::areas($review),
             "members"=>$members,
         ];
     }

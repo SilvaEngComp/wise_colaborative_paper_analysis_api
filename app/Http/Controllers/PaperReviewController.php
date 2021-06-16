@@ -2,52 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Base;
 use App\Models\PaperReview;
+use App\Models\Review;
 use Illuminate\Http\Request;
 
 class PaperReviewController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\PaperReview  $paperReview
-     * @return \Illuminate\Http\Response
-     */
-    public function show(PaperReview $paperReview)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -55,9 +17,18 @@ class PaperReviewController extends Controller
      * @param  \App\Models\PaperReview  $paperReview
      * @return \Illuminate\Http\Response
      */
-    public function edit(PaperReview $paperReview)
+    public function edit(Request $request, Base $base, Review $review)
     {
-        //
+        $papers = PaperReview::join('papers','paper_reviews.paper_id','=','papers.id')
+        ->where('papers.base_id',$base->id)
+        ->where('paper_reviews.review_id',$review->id)
+        ->get();
+        foreach($papers as $paperReview){
+                $paperReview->search_terms = $request->input('search_terms');
+                $paperReview->update();
+        }
+
+        return Response(['message'=>'Termos de pesquisa atualizados'],200);
     }
 
     /**
@@ -69,7 +40,27 @@ class PaperReviewController extends Controller
      */
     public function update(Request $request, PaperReview $paperReview)
     {
-        //
+        if($paperReview){
+            if($paperReview){
+            if($request->has('relevance')){
+                $paperReview->relevance = $request->input('relevance');
+            }
+            if($request->has('status')){
+                $paperReview->status = $request->input('status');
+            }
+            if($request->has('issue')){
+                $paperReview->issue = $request->input('issue');
+            }
+            if($request->has('observation')){
+                $paperReview->observation = $request->input('observation');
+            }
+
+
+            $paperReview->update();
+        return Response(['message'=>'Estudo primário atualizado'],200);
+
+        }
+        }
     }
 
     /**

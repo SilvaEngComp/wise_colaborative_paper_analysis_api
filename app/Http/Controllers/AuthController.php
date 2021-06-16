@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Models\Review;
+use App\Models\ReviewUser;
 
 class AuthController extends Controller
 {
@@ -62,14 +64,14 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public static function checkLevelAccess($level)
+    public static function checkLevelAccess(Review $review)
     {
-        if (auth()->user()) {
-            if (User::getLevel(auth()->user()) <= $level) {
-                return true;
-            }
-        }
-        return false;
+            $user = auth()->user();
+            $review = ReviewUser::where('user_id',$user->id)
+            ->where('review_id',$review->id);
+
+            return ($review->permission);
+
     }
 
     /* Get the authenticated User.

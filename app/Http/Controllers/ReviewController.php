@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Review;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,7 +17,7 @@ class ReviewController extends Controller
     public function index()
     {
         $me = Auth::user();
-        $reviews = $me->reviews;
+        $reviews = User::reviews($me);
         $list = array();
         foreach($reviews as $review){
         array_push($list, Review::build($review));
@@ -41,7 +42,7 @@ class ReviewController extends Controller
             "description"=>$request->input('description'),
         ]);
 
-        AreaReviewController::store($request,$review);
+        ReviewAreaController::store($request,$review);
         ReviewUserController::store($request, $review);
     }
 
@@ -91,7 +92,7 @@ class ReviewController extends Controller
             $review->title = $request->input('title');
         }
         if($request->has('areas')){
-            AreaReviewController::update($request, $review);
+            ReviewAreaController::update($request, $review);
         }
 
         if($request->has('members')){

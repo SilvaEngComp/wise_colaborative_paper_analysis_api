@@ -30,9 +30,12 @@ class User extends Authenticatable implements JWTSubject
         'gender',
     ];
 
-    public function reviews(){
-        return $this->belongsToMany(Review::class);
+    public static function reviews(User $user){
+
+        return Review::join('review_users','review_users.review_id','=','reviews.id')
+        ->where('review_users.user_id',$user->id)->get();
     }
+
 
 
     public static function setUserArray($users)

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAreaReviewsTable extends Migration
+class CreateReviewAreaTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateAreaReviewsTable extends Migration
      */
     public function up()
     {
-        Schema::create('area_reviews', function (Blueprint $table) {
+        Schema::create('review_areas', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('area_id');
             $table->unsignedBigInteger('review_id');

@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Base;
 use App\Models\Paper;
+use App\Models\PaperReview;
+use App\Models\Review;
 use Illuminate\Http\Request;
+
 
 class PaperController extends Controller
 {
@@ -13,20 +16,76 @@ class PaperController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Review $review)
     {
-        //
+        $papers =  Paper::paperReview($review);
+        $list = array();
+        foreach ($papers as $paper) {
+            array_push($list, Paper::build($paper, $review));
+        }
+
+        return $list;
     }
 
+    public function show(Request $request)
+    {
+        $review = Review::find($request->input('review_id'));
+        $papers =  Paper::filter($request);
+        $list = array();
+        foreach ($papers as $paper) {
+            array_push($list, Paper::build($paper, $review));
+        }
+
+        return $list;
+    }
+
+    public function mainTerms(Review $review)
+    {
+        $papers =  Paper::paperReview($review);
+        $listO = array();
+        $listI = array();
+        $strI = '';
+        $strO = '';
+        foreach ($papers as $paper) {
+            array_push($listI, $paper->issue);
+            $strI .= ' ' . $paper->issue;
+            array_push($listO, $paper->observation);
+            $strO .= ' ' . $paper->observation;
+        }
+        $listI = array_unique($listI);
+        $listO = array_unique($listO);
+
+        $contI = 0;
+        $termI = '';
+        foreach ($listI as $term) {
+            if(strlen($term)>0){
+            $tot = substr_count($strI, $term);
+            if ($tot > $contI) {
+                $contI = $tot;
+                $termI = $term;
+            }
+        }
+        }
+        $contO = 0;
+        $termO = '';
+        foreach ($listI as $term) {
+            if(strlen($term)>0){
+            $tot = substr_count($strI, $term);
+            if ($tot > $contO) {
+                $contO = $tot;
+                $termO = $term;
+            }
+        }
+        }
+
+        return Response(["issue"=>["term"=>$termI, "ocorrencies"=>$contI], "observation"=>["term"=>$termO, "ocorrencies"=>$contO]]);
+    }
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        //
-    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -34,31 +93,42 @@ class PaperController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Base $base)
+    public function store(Request $request, Base $base, Review $review)
     {
 
+        $file = $request->file('file');
+        if ($file) {
+            $path = $request->file('file')->getRealPath();
+            $data = array_map('str_getcsv', file($path));
+            $csv_data = array_slice($data, 0, count($data));
+            unset($csv_data[0]);
+            foreach ($csv_data as $inst) {
+                if (count($inst) > 5) {
+                    $paper = Paper::inputPaper($base, $inst);
+
+                    $search_terms = "";
+                    if ($base->id == 1) {
+                        $search_terms = $inst[17];
+                    }
+                    PaperReview::create([
+                        "paper_id" => $paper->id,
+                        "review_id" => $review->id,
+                        "search_terms" => $search_terms,
+                    ]);
+                }
+            }
+            return $this->index($review);
+        }
+        return response(["message" => "Nenhum arquivo selecionado"], 404);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Paper  $paper
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Paper $paper)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Paper  $paper
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Paper $paper)
+
+    public function destroy(Paper $paper)
     {
-        //
+        if ($paper) {
+            $paper->delete();
+        }
     }
 
     /**
@@ -70,17 +140,7 @@ class PaperController extends Controller
      */
     public function update(Request $request, Paper $paper)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Paper  $paper
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Paper $paper)
-    {
-        //
+        if ($paper) {
+        }
     }
 }

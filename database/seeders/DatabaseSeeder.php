@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             AreaSeeder::class,
             InstituitionSeeder::class,
+            ProtocolTypeSeeder::class,
         ]);
     }
 }

@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BaseController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\InstituitionController;
+use App\Http\Controllers\PaperController;
+use App\Http\Controllers\PaperReviewController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -18,10 +21,6 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-Route::get('/', function () {
-    return view('welcome');
-});
 
 
 Route::post("login", [AuthController::class,"login"]);
@@ -43,7 +42,6 @@ Route::group([
          Route::delete("users", [UserController::class,"destroy"]);
          Route::patch("users/policy/{user}", [UserController::class,"updatePolicy"]);
     });
-});
     Route::name("chat.")->group(function () {
          Route::get("chat", [ChatController::class,"index"]);
 
@@ -52,6 +50,9 @@ Route::group([
 
 Route::name("areas.")->group(function () {
          Route::get("areas", [AreaController::class,"index"]);
+});
+Route::name("bases.")->group(function () {
+         Route::get("bases", [BaseController::class,"index"]);
 });
 Route::name("instituitions.")->group(function () {
          Route::get("instituitions", [InstituitionController::class,"index"]);
@@ -64,4 +65,34 @@ Route::name("reviews.")->group(function () {
 
 });
 
+
+Route::name("papers.")->group(function () {
+         Route::get("papers/review/{review}", [PaperController::class,"index"]);
+         Route::get("papers", [PaperController::class,"show"]);
+         Route::get("papers/mainterms/{review}", [PaperController::class,"mainTerms"]);
+         Route::post("papers/base/{base}/review/{review}/upload", [PaperController::class,"store"]);
+         Route::patch("papers/{paper}", [PaperController::class,"update"]);
+         Route::delete("papers/{paper}", [PaperController::class,"destroy"]);
+
+});
+
+Route::name("paper_reviews.")->group(function () {
+         Route::patch("paper_reviews/{paperReview}", [PaperReviewController::class,"update"]);
+         Route::get("paper_reviews/base/{base}/review/{review}", [PaperReviewController::class,"edit"]);
+         Route::delete("paper_reviews/{paperReview}", [PaperReviewController::class,"destroy"]);
+});
+
+Route::name("protocols.")->group(function () {
+         Route::get("protocols/review/{review}", [PaperController::class,"index"]);
+         Route::get("protocols/review/{review}/type/{type}", [PaperController::class,"show"]);
+         Route::post("protocols/review/{review}", [PaperController::class,"store"]);
+         Route::patch("protocols/{paper}", [PaperController::class,"update"]);
+         Route::delete("protocols/{paper}", [PaperController::class,"destroy"]);
+
+});
+Route::name("protocolsType.")->group(function () {
+         Route::get("protocolsType", [PaperController::class,"index"]);
+});
+
+});
 });

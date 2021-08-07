@@ -33,6 +33,7 @@ class User extends Authenticatable implements JWTSubject
     public static function reviews(User $user){
 
         return Review::join('review_users','review_users.review_id','=','reviews.id')
+        ->select('review_id as id', 'title','question','description', 'instituition_id','permission')
         ->where('review_users.user_id',$user->id)->get();
     }
 
@@ -75,15 +76,10 @@ class User extends Authenticatable implements JWTSubject
         if ($user) {
 
 
-            $image = null;
-            if ($user->image) {
-                $image = User::setImage($user->image);
-            }
-
-            return [
+               return [
                 "id" => $user->id,
                 "name" => $user->name,
-                "image" => $image ? $image["path"] : null,
+                "image" => $user->image,
                 "policy" => $user->policy,
             ];
         }

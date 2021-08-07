@@ -5,17 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PaperReview extends Model
+class NotificationUser extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        "paper_id",
-        "review_id",
-        "status",
-        "observation",
-        "issue",
-        "relevance",
-        "star",
+        "user_id",
+        "notification_id",
+        'has_saw'
     ];
 }

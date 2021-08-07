@@ -22,6 +22,7 @@ class CreatePaperReviewTable extends Migration
             $table->string('issue')->nullable();
             $table->integer('relevance')->nullable();
             $table->string('search_terms',500)->nullable();
+            $table->boolean('star')->nullable();
 
             $table->foreign('paper_id')->references('id')->on('papers')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('review_id')->references('id')->on('reviews')->onDelete('cascade')->onUpdate('cascade');

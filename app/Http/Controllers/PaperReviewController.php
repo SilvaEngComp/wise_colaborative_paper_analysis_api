@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Base;
+use App\Models\Paper;
 use App\Models\PaperReview;
 use App\Models\Review;
 use Illuminate\Http\Request;
@@ -54,10 +55,16 @@ class PaperReviewController extends Controller
             if($request->has('observation')){
                 $paperReview->observation = $request->input('observation');
             }
+            if($request->has('star')){
+                $paperReview->star = $request->input('star');
+            }
 
-
+$paper = Paper::find($paperReview->paper_id);
             $paperReview->update();
-        return Response(['message'=>'Estudo primário atualizado'],200);
+            $request = new Request(['review_id' => $paperReview->review_id, "base_id"=>$paper->base_id]);
+
+
+        return PaperController::show($request);
 
         }
         }

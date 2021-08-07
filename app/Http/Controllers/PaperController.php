@@ -27,7 +27,7 @@ class PaperController extends Controller
         return $list;
     }
 
-    public function show(Request $request)
+    public static function show(Request $request)
     {
         $review = Review::find($request->input('review_id'));
         $papers =  Paper::filter($request);
@@ -97,6 +97,7 @@ class PaperController extends Controller
     {
 
         $file = $request->file('file');
+        $repetidos = array();
         if ($file) {
             $path = $request->file('file')->getRealPath();
             $data = array_map('str_getcsv', file($path));
@@ -106,6 +107,7 @@ class PaperController extends Controller
                 if (count($inst) > 5) {
                     $paper = Paper::inputPaper($base, $inst);
 
+                    if($paper){
                     $search_terms = "";
                     if ($base->id == 1) {
                         $search_terms = $inst[17];
@@ -115,6 +117,9 @@ class PaperController extends Controller
                         "review_id" => $review->id,
                         "search_terms" => $search_terms,
                     ]);
+                }else{
+                    array_push($repetidos, $inst);
+                }
                 }
             }
             return $this->index($review);

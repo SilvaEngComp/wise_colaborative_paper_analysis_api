@@ -29,34 +29,36 @@ class Paper extends Model
         'search_terms',
     ];
 
-    public static function build(Paper $paper, Review $review){
-$paperReview = PaperReview::where('paper_id',$paper->id)
-->where('review_id',$review->id)->first();
-if($paperReview){
+    public static function build(Paper $paper, Review $review)
+    {
+        $paperReview = PaperReview::where('paper_id', $paper->id)
+            ->where('review_id', $review->id)->first();
+        if ($paperReview) {
 
-return [
-    'base_id'=>$paper->base_id,
-        'title'=>$paper->title,
-        'authors'=>$paper->authors,
-        'publication_title'=>$paper->publication_title,
-        'publication_year'=>$paper->publication_year,
-        'volume'=>$paper->volume,
-        'start_page'=>$paper->start_page,
-        'end_page'=>$paper->end_page,
-        'abstract'=>$paper->abstract,
-        'issn'=>$paper->issn,
-        'isbn'=>$paper->isbn,
-        'doi'=>$paper->doi,
-        'link'=>$paper->link,
-        'keywords'=>$paper->keywords,
-        'search_terms'=>$paperReview->search_terms,
-        'status'=>$paperReview->status,
-         "observation"=>$paperReview->observation,
-        "issue"=>$paperReview->issue,
-        "relevance"=>$paperReview->relevance,
-        "paper_review"=>$paperReview->id,
-];
-}
+            return [
+                'base_id' => $paper->base_id,
+                'title' => $paper->title,
+                'authors' => $paper->authors,
+                'publication_title' => $paper->publication_title,
+                'publication_year' => $paper->publication_year,
+                'volume' => $paper->volume,
+                'start_page' => $paper->start_page,
+                'end_page' => $paper->end_page,
+                'abstract' => $paper->abstract,
+                'issn' => $paper->issn,
+                'isbn' => $paper->isbn,
+                'doi' => $paper->doi,
+                'link' => $paper->link,
+                'keywords' => $paper->keywords,
+                'search_terms' => $paperReview->search_terms,
+                'status' => $paperReview->status,
+                "observation" => $paperReview->observation,
+                "issue" => $paperReview->issue,
+                "relevance" => $paperReview->relevance,
+                "paper_review" => $paperReview->id,
+                "star" => $paperReview->star,
+            ];
+        }
     }
 
 
@@ -73,9 +75,9 @@ return [
             if ($base->id == 1) {
                 $check  = false;
                 if ($inst[13] != '') {
-                    $check = self::check($inst[13],2);
+                    $check = self::check($inst[13]);
                 } else {
-                    $check = self::check($inst[15]);
+                    $check = self::check([$inst[15], $inst[1], $inst[0]],2);
                 }
                 if ($check) {
                     return  Paper::create([
@@ -95,12 +97,12 @@ return [
                         'keywords' => $inst[16],
                     ]);
                 }
-            }else if($base->id == 2){
-                 $check  = false;
+            } else if ($base->id == 2) {
+                $check  = false;
                 if ($inst[5] != '') {
-                    $check = self::check($inst[5],2);
+                    $check = self::check($inst[5]);
                 } else {
-                    $check = self::check($inst[8]);
+                    $check = self::check([$inst[8], $inst[6], $inst[0]],2);
                 }
                 if ($check) {
                     return  Paper::create([
@@ -112,6 +114,31 @@ return [
                         'volume' => $inst[3],
                         'doi' => $inst[5],
                         'link' => $inst[8],
+
+                    ]);
+                }
+            } else if ($base->id == 3) {
+                $check  = false;
+                if ($inst[9] != '') {
+                    $check = self::check($inst[9]);
+                } else {
+                    $check = self::check([$inst[10], $inst[0], $inst[1]],2);
+                }
+
+                if ($check) {
+                    return  Paper::create([
+                        'base_id' => $base->id,
+                        'title' => $inst[1],
+                        'authors' => $inst[0],
+                        'publication_year' => $inst[2],
+                        'volume' => $inst[3],
+                        'doi' => $inst[9],
+                        'link' => $inst[10],
+                        'start_page' => $inst[6],
+                        'end_page' => $inst[7],
+                        'abstract' => $inst[11],
+                        'issn' => $inst[12],
+                        'isbn' => $inst[13],
                     ]);
                 }
             }
@@ -120,12 +147,17 @@ return [
 
     public static function check($value, $op = 1)
     {
-        if ($op == 1) {
-            $paper = Paper::where('link', $value)->first();
-        } else {
-            $paper = Paper::where('doi', $value)->first();
-        }
 
+        if($op==1){
+             $paper = Paper::where('doi', $value)->first();
+        }else if ($op == 2) {
+            $paper = Paper::where('title', $value[2])
+                ->where('authors', $value[1])
+                ->first();
+            if (!$paper) {
+                $paper = Paper::where('link', $value[0])->first();
+            }
+        }
         if ($paper) {
             return false;
         }

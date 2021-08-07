@@ -14,10 +14,10 @@ class ReviewController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(User $user)
     {
-        $me = Auth::user();
-        $reviews = User::reviews($me);
+        if($user){
+         $reviews = User::reviews($user);
         $list = array();
         foreach($reviews as $review){
         array_push($list, Review::build($review));
@@ -25,6 +25,7 @@ class ReviewController extends Controller
 
 
         return $list;
+    }
     }
 
 
@@ -88,9 +89,29 @@ class ReviewController extends Controller
         if($request->has('question')){
             $review->title = $request->input('title');
         }
-        if($request->has('descriptino')){
+        if($request->has('description')){
             $review->title = $request->input('title');
         }
+
+        $review->update();
+
+        if($request->has('includeCriteria')){
+            foreach($request->input('includeCriteria') as $criteria){
+                if(array_key_exists('answare', $criteria)){
+            ProtocolController::store($criteria, $review);
+
+                }
+            }
+        }
+        if($request->has('excludeCriteria')){
+            foreach($request->input('includeCriteria') as $criteria){
+             if(array_key_exists('answare', $criteria)){
+            ProtocolController::store($criteria, $review);
+
+                }
+            }
+        }
+
         if($request->has('areas')){
             ReviewAreaController::update($request, $review);
         }

@@ -11,6 +11,9 @@ use App\Models\ReviewUser;
 
 class AuthController extends Controller
 {
+
+
+
     /**
      * Display a listing of the resource.
      *
@@ -18,20 +21,25 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $flag = false;
-
-        if ($request->input('email') != "") {
+        $user  = null;
+        if ($request->input('email')) {
             $user = User::all()->where("email", $request->input('email'))->first();
         }
 
         if ($user) {
-            $user->update();
+            if (!$user->image) {
+                $user->image = $request->input('image');
+                $user->update();
+            }
+
             if (!$token = Auth::login($user, true)) {
                 return response(array("message" => 'Acesso n達o autorizado'), 403);
             }
 
-        return $this->respondWithToken($token, $user, $request->input('now'));
+            return $this->respondWithToken($token, $user, $request->input('now'));
         }
+
+        return response(array("message" => 'Acesso n達o cadastrado'), 403);
     }
 
     /**
@@ -48,7 +56,7 @@ class AuthController extends Controller
     /**
      * Get the authenticated User.
      *
-     * @return \Illuminate\Http\JsonResponse
+     *      * @return \Illuminate\Http\JsonResponse
      */
     public  function loggedUser()
     {
@@ -66,12 +74,11 @@ class AuthController extends Controller
      */
     public static function checkLevelAccess(Review $review)
     {
-            $user = auth()->user();
-            $review = ReviewUser::where('user_id',$user->id)
-            ->where('review_id',$review->id);
+        $user = auth()->user();
+        $review = ReviewUser::where('user_id', $user->id)
+            ->where('review_id', $review->id);
 
-            return ($review->permission);
-
+        return ($review->permission);
     }
 
     /* Get the authenticated User.
@@ -111,7 +118,7 @@ class AuthController extends Controller
     public function refresh()
     {
         // print_r(auth());
-        return $this->respondWithToken(auth()->refresh(), auth()->user());
+        return $this->respondWithToken(Auth::refresh(), Auth::user(), now());
     }
 
     protected function respondWithToken($token, User $user, $now)

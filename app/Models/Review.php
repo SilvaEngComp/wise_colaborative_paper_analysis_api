@@ -17,6 +17,7 @@ class Review extends Model
 
     public static function members(Review $review){
         return User::join('review_users','review_users.user_id','=','users.id')
+        ->select('users.id','users.name','users.image','users.gender','users.active')
         ->where('review_users.review_id',$review->id)->get();
     }
     public static function areas(Review $review){

@@ -32,14 +32,14 @@ array_push($list, Protocol::build($p));
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Review $review)
+    public static function store($protocol, Review $review)
     {
         if($review){
         Protocol::create([
             'review_id'=>$review->id,
-        'protocol_type_id'=>$request->input('type.id'),
-        'question'=>$request->input('question'),
-        'answer'=>$request->input('answer'),
+        'protocol_type_id'=>$protocol['type']['id'],
+        'question'=>$protocol['question'],
+        'answer'=>$protocol['answer'],
         ]);
     }
     }

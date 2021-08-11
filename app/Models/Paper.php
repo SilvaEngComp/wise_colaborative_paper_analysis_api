@@ -34,6 +34,20 @@ class Paper extends Model
         $paperReview = PaperReview::where('paper_id', $paper->id)
             ->where('review_id', $review->id)->first();
         if ($paperReview) {
+            $relevance = null;
+            if ($paperReview->relevance) {
+                switch ($paperReview->relevance) {
+                    case 1:
+                        $relevance = 'baixa';
+                        break;
+                    case 2:
+                        $relevance = 'média';
+                        break;
+                    case 3:
+                        $relevance = 'alta';
+                        break;
+                }
+            }
 
             return [
                 'base_id' => $paper->base_id,
@@ -54,6 +68,7 @@ class Paper extends Model
                 'status' => $paperReview->status,
                 "observation" => $paperReview->observation,
                 "issue" => $paperReview->issue,
+                "relevanceTex" => $relevance,
                 "relevance" => $paperReview->relevance,
                 "paper_review" => $paperReview->id,
                 "star" => $paperReview->star,
@@ -77,7 +92,7 @@ class Paper extends Model
                 if ($inst[13] != '') {
                     $check = self::check($inst[13]);
                 } else {
-                    $check = self::check([$inst[15], $inst[1], $inst[0]],2);
+                    $check = self::check([$inst[15], $inst[1], $inst[0]], 2);
                 }
                 if ($check) {
                     return  Paper::create([
@@ -102,7 +117,7 @@ class Paper extends Model
                 if ($inst[5] != '') {
                     $check = self::check($inst[5]);
                 } else {
-                    $check = self::check([$inst[8], $inst[6], $inst[0]],2);
+                    $check = self::check([$inst[8], $inst[6], $inst[0]], 2);
                 }
                 if ($check) {
                     return  Paper::create([
@@ -122,7 +137,7 @@ class Paper extends Model
                 if ($inst[9] != '') {
                     $check = self::check($inst[9]);
                 } else {
-                    $check = self::check([$inst[10], $inst[0], $inst[1]],2);
+                    $check = self::check([$inst[10], $inst[0], $inst[1]], 2);
                 }
 
                 if ($check) {
@@ -148,9 +163,9 @@ class Paper extends Model
     public static function check($value, $op = 1)
     {
 
-        if($op==1){
-             $paper = Paper::where('doi', $value)->first();
-        }else if ($op == 2) {
+        if ($op == 1) {
+            $paper = Paper::where('doi', $value)->first();
+        } else if ($op == 2) {
             $paper = Paper::where('title', $value[2])
                 ->where('authors', $value[1])
                 ->first();
@@ -176,6 +191,13 @@ class Paper extends Model
 
         if ($request->has('base_id')) {
             $query = $query->where('papers.base_id', $request->input('base_id'));
+        }
+        if ($request->has('status')) {
+            $query = $query->orderBy('paper_reviews.status', 'desc');
+        }
+
+        if ($request->has('relevance')) {
+            $query = $query->orderBy('paper_reviews.relevance', $request->input('relevance'));
         }
 
 

@@ -18,10 +18,10 @@ class NotificationController extends Controller
     public function index(User $user)
     {
         if($user){
-        return Notification::join('notificationUsers'.'notifications.id','=','notificationUsers.notification_id')
-        ->select('notifications.message','notifications.created_at','notifications.review_id', 'notificationUsers.id','notificationUsers.has_saw')
-        ->where('notificationUsers.user_id',$user->id)
-        ->all();
+        return Notification::join('notification_users','notifications.id','=','notification_users.notification_id')
+        ->select('notifications.message','notifications.created_at','notifications.review_id', 'notification_users.id','notification_users.has_saw')
+        ->where('notification_users.user_id',$user->id)
+        ->get();
         }
     }
 

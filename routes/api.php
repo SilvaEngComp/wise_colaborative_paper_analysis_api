@@ -105,6 +105,7 @@ Route::name("protocolsType.")->group(function () {
 
 
 Route::name("notifications.")->group(function () {
+         Route::get("notifications/user/{user}", [NotificationController::class,"index"]);
          Route::post("notifications", [NotificationController::class,"store"]);
          Route::patch("notifications", [NotificationController::class,"store"]);
 });

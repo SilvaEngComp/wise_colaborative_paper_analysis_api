@@ -12,6 +12,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReviewUserController;
 use App\Http\Controllers\NotificationUserController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PushNotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -69,6 +70,11 @@ Route::name("reviews.")->group(function () {
 });
 
 
+     Route::name("pushNotifications.")->group(function () {
+        Route::post("pushNotifications/send", [PushNotificationController::class,"send"]);
+        Route::post("pushNotifications/user/{user}", [PushNotificationController::class,"store"]);
+    });
+
 Route::name("papers.")->group(function () {
          Route::get("papers/review/{review}", [PaperController::class,"index"]);
          Route::get("papers", [PaperController::class,"show"]);
@@ -107,12 +113,10 @@ Route::name("protocolsType.")->group(function () {
 Route::name("notifications.")->group(function () {
          Route::get("notifications/user/{user}", [NotificationController::class,"index"]);
          Route::post("notifications", [NotificationController::class,"store"]);
-         Route::patch("notifications", [NotificationController::class,"store"]);
+         Route::patch("notifications/{notificationUser}/user/{user}", [NotificationUserController::class,"update"]);
+         Route::delete("notifications/{notificationUser}/user/{user}", [NotificationUserController::class,"destroy"]);
 });
 
-Route::name("notificationUser.")->group(function () {
-         Route::patch("notificationUser/notification/{notification}/user/{user}", [NotificationUserController::class,"update"]);
-});
 
 });
 });

@@ -33,7 +33,7 @@ class User extends Authenticatable implements JWTSubject
     public static function reviews(User $user){
 
         return Review::join('review_users','review_users.review_id','=','reviews.id')
-        ->select('review_id as id', 'title','question','description', 'instituition_id','permission')
+        ->select('review_id as id', 'title','question','description', 'instituition_id','accepted')
         ->where('review_users.user_id',$user->id)->get();
     }
 
@@ -45,7 +45,7 @@ class User extends Authenticatable implements JWTSubject
         $userArray = array();
         if ($users) {
             foreach ($users as $user) {
-                array_push($userArray, User::build($user));
+                array_push($userArray, User::build($user, $user['accepted']));
             }
 
             return $userArray;
@@ -54,33 +54,34 @@ class User extends Authenticatable implements JWTSubject
         return null;
     }
 
-    public static function build(User $user): array
+    public static function build(User $user, $accepted=0): array
     {
         if ($user) {
 
 
             return [
                 "id" => $user->id,
+                "fcm_web_key" => $user->fcm_web_key,
+                "fcm_mobile_key" => $user->fcm_mobile_key,
                 "name" => $user->name,
                 "image" => $user->image,
-                "image_google" => $user->image_google,
-                "image_facebook" => $user->image_facebook,
                 "gender" => $user->gender,
                 "active" => $user->active,
                 "policy" => $user->policy,
+                "accepted" => $accepted,
             ];
         }
     }
     public static function buildSimple(User $user): array
     {
         if ($user) {
-
-
                return [
                 "id" => $user->id,
                 "name" => $user->name,
                 "image" => $user->image,
                 "policy" => $user->policy,
+                "fcm_web_key" => $user->fcm_web_key,
+                "fcm_mobile_key" => $user->fcm_mobile_key,
             ];
         }
     }

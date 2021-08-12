@@ -15,11 +15,11 @@ class NotificationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(User $user)
+    public static function index(User $user)
     {
         if($user){
         return Notification::join('notification_users','notifications.id','=','notification_users.notification_id')
-        ->select('notifications.message','notifications.created_at','notifications.review_id', 'notification_users.id','notification_users.has_saw')
+        ->select('notification_users.who_send','notifications.message','notifications.created_at','notification_users.invitation','notifications.review_id', 'notification_users.id','notification_users.has_saw')
         ->where('notification_users.user_id',$user->id)
         ->get();
         }
@@ -40,51 +40,6 @@ class NotificationController extends Controller
           ]);
 
           NotificationUserController::store($notification, $user, $invitation);
-
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Notification  $notification
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Notification $notification)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Notification  $notification
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Notification $notification)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Notification  $notification
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Notification $notification)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Notification  $notification
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Notification $notification)
-    {
-        //
-    }
 }

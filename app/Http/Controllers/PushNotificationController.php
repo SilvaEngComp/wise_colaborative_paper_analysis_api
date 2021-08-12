@@ -43,7 +43,7 @@ class PushNotificationController extends Controller
 
     public function send(Request $request){
          $url = 'https://fcm.googleapis.com/fcm/send';
-        $serverKey = 'AAAA7638TUk:APA91bHpeWeS0l98YA-UWAUi3Yd5hsicN_SUyWZHDRzcbUoOfY1SnXzQEvUCg_URSoBV8ArGiBXS3rNjEHFJt3MuU4Vjh40LTyx-t8p3VIXgh85w7bLekD69qSZ7p7ofxaKjUOb1XebP';
+        $serverKey = 'AAAAaDn8EH0:APA91bFagtHGaRI-E5x0WjNnc79lwMHdAgtHLX05i8H5bzo6WFZjbEGuoGqQqEAPtk44FS3YiwxYBi8grqhDKG8IZYt7FyZ7sWngApviHGVGfBSmP7i8C9yx9T-htj1KDEcKKJLPXdVU';
 
         $headers = [
             'Authorization:key=' . $serverKey,
@@ -58,8 +58,11 @@ class PushNotificationController extends Controller
                 "info"=>"This is a special informationfor the app"
             ]
         ];
-        return $this->sendWebNotification($url, $headers, $notification);
-       return $this->sendMobileNotification($url, $headers, $notification);
+         $resp = array();
+        array_push($resp, $this->sendWebNotification($url, $headers, $notification));
+        array_push($resp,$this->sendMobileNotification($url, $headers, $notification));
+
+        return $resp;
     }
 
 

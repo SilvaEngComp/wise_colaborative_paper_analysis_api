@@ -11,6 +11,7 @@ class NotificationUser extends Model
 
     protected $fillable = [
         "user_id",
+        "who_send",
         "notification_id",
         'has_saw'
     ];

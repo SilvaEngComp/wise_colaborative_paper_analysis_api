@@ -17,7 +17,7 @@ class CreateReviewUserTable extends Migration
            $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('review_id');
-            $table->integer('permission')->default(0);
+            $table->boolean('accepted')->default(0);
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('review_id')->references('id')->on('reviews')->onDelete('cascade')->onUpdate('cascade');

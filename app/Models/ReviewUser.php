@@ -12,6 +12,6 @@ class ReviewUser extends Model
        protected $fillable = [
         "user_id",
         "review_id",
-        "permission",
+        "accepted",
     ];
 }

@@ -39,7 +39,7 @@ class ReviewUserController extends Controller
                     ReviewUser::create([
                         "user_id" => $member['id'],
                         "review_id" => $review->id,
-                        "permission" => 0
+                        "accepted" => 0
                     ]);
 
                     $from = Auth::user();
@@ -81,7 +81,7 @@ class ReviewUserController extends Controller
             ReviewUser::create([
                 "user_id" => $member['id'],
                 "review_id" => $review->id,
-                "permission" => 1
+                "accepted" => 0
             ]);
         }
     }

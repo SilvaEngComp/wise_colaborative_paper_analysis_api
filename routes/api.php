@@ -46,8 +46,12 @@ Route::group([
          Route::delete("users", [UserController::class,"destroy"]);
          Route::patch("users/policy/{user}", [UserController::class,"updatePolicy"]);
     });
-    Route::name("chat.")->group(function () {
-         Route::get("chat", [ChatController::class,"index"]);
+    Route::name("chats.")->group(function () {
+         Route::get("chats/receiver/{receiver}/sender/{sender}", [ChatController::class,"index"]);
+         Route::get("chats/getUsers", [ChatController::class,"getUsers"]);
+         Route::get("chats/messagesRead/user/{sender}", [ChatController::class,"setMessagesRead"]);
+         Route::post("chats", [ChatController::class,"store"]);
+
 
 });
 

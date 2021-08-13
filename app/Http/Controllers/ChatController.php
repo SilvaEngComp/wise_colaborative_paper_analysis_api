@@ -14,31 +14,32 @@ class ChatController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(User $user)
+    public function index(User $receiver, User $sender)
     {
-        if ($user) {
-            $userFrom = Auth::user();
-            $userTo = $user;
-
+        if ($receiver && $sender) {
             $messages = Chat::where(
-                function ($query) use ($userTo, $userFrom) {
+                function ($query) use ($receiver, $sender) {
                     $query->where([
-                        'from' => $userFrom,
-                        'to' => $userTo
+                        'sender' => $sender->id,
+                        'receiver' => $receiver->id
                     ]);
                 }
             )
                 ->orWhere(
-                    function ($query) use ($userTo, $userFrom) {
+                    function ($query) use ($receiver, $sender) {
                         $query->where([
-                            'to' => $userFrom,
-                            'from' => $userTo
+                            'receiver' => $sender->id,
+                            'sender' => $receiver->id
                         ]);
                     }
                 )->orderBy('created_at', 'ASC')->get();
 
+            $chats = array();
+            foreach ($messages as $chat) {
+                array_push($chats, Chat::build($chat));
+            }
 
-                return $messages;
+            return $chats;
         }
 
         return null;
@@ -49,9 +50,31 @@ class ChatController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function getUsers()
     {
-        //
+
+        $me=Auth::user();
+        $users = User::all()->where('id','!=',$me->id);
+        $chatUsers = array();
+        foreach ($users as $sender) {
+            $messages = Chat::where(['sender'=> $sender->id,"receiver"=>$me->id, "deleted"=>0])->get();
+            $notRead = 0;
+            foreach($messages as $msg){
+                if($msg->read==0){
+                    $notRead++;
+                }
+            }
+            array_push($chatUsers, array(
+                "user" => [
+                    "id" => $sender->id,
+                    "name" => $sender->name,
+                    "image" => $sender->image,
+                ],
+                "notRead" => $notRead,
+                "lastMessage" => end($messages),
+            ));
+        }
+        return $chatUsers;
     }
 
     /**
@@ -60,14 +83,40 @@ class ChatController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, User $to)
+    public function store(Request $request)
     {
-        if($to){
-        Chat::create([
-"from"=>Auth::user()->id,
-"to"=>$to->id,
-"message"=> $request->input('message')
-        ]);
+        $receiver = User::find($request->input('receiver.id'));
+        $sender = User::find($request->input('sender.id'));
+        if($receiver){
+            Chat::create([
+                "sender" => $request->input('sender.id'),
+                "receiver" => $request->input('receiver.id'),
+                "message" => $request->input('message'),
+            ]);
+
+            $push = new Request(["title" => "Você receveu uma mensagem",
+                "body" => $sender->name. ": ".$request->input('message'),
+                "icon" => "",
+                "click_action" => "3"]);
+
+            PushNotificationController::sendChat($push, $sender, $receiver);
+            return $this->index($receiver, $sender);
+        }
+
+        return response(["message"=>"usuário não está mais cadastrado"],404);
+    }
+
+
+    public function setMessagesRead(User $sender)
+    {
+        if ($sender) {
+            $me=Auth::user();
+           $messages = Chat::where(['sender'=> $sender->id,"receiver"=>$me->id, "deleted"=>0])->get();
+
+           foreach($messages as $message){
+               $message->receiver_read = 1;
+               $message->update();
+           }
         }
     }
 

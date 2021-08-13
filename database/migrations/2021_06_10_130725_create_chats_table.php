@@ -15,13 +15,16 @@ class CreateChatsTable extends Migration
     {
         Schema::create('chats', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('from');
-            $table->unsignedBigInteger('to');
-            $table->text('content');
+            $table->string('message',10000)->nulnullableable();
+            $table->string('file_path')->nullable();
+            $table->string('receiver_read')->nullable();
+            $table->boolean('deleted')->default(0);
+             $table->unsignedBigInteger('sender');
+            $table->unsignedBigInteger('receiver');
             $table->timestamps();
-            $table->foreign('from')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('to')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
 
+            $table->foreign('sender')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('receiver')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

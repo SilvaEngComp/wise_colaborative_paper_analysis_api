@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PushNotificationController extends Controller
 {
@@ -41,7 +42,7 @@ class PushNotificationController extends Controller
        return response(['message'=>'usuário não encontrado'],404);
     }
 
-    public function send(Request $request){
+    public static function send(Request $request,  $users=null){
          $url = 'https://fcm.googleapis.com/fcm/send';
         $serverKey = 'AAAAaDn8EH0:APA91bFagtHGaRI-E5x0WjNnc79lwMHdAgtHLX05i8H5bzo6WFZjbEGuoGqQqEAPtk44FS3YiwxYBi8grqhDKG8IZYt7FyZ7sWngApviHGVGfBSmP7i8C9yx9T-htj1KDEcKKJLPXdVU';
 
@@ -52,24 +53,51 @@ class PushNotificationController extends Controller
           $notification = [
                 "title" => $request->title,
                 "body" => $request->body,
-                "icon" => $request->icon,
+                "icon" =>Auth::user(),
                 "click_action" => $request->click_action,
-                "data"=>[
-                "info"=>"This is a special informationfor the app"
-            ]
+
         ];
          $resp = array();
-        array_push($resp, $this->sendWebNotification($url, $headers, $notification));
-        array_push($resp,$this->sendMobileNotification($url, $headers, $notification));
+        array_push($resp, self::sendWebNotification($url, $headers, $notification));
+        // array_push($resp,self::sendMobileNotification($url, $headers, $notification));
+
+        return $resp;
+    }
+    public static function sendChat(Request $request,  User $sender, User $receiver){
+         $url = 'https://fcm.googleapis.com/fcm/send';
+        $serverKey = 'AAAAaDn8EH0:APA91bFagtHGaRI-E5x0WjNnc79lwMHdAgtHLX05i8H5bzo6WFZjbEGuoGqQqEAPtk44FS3YiwxYBi8grqhDKG8IZYt7FyZ7sWngApviHGVGfBSmP7i8C9yx9T-htj1KDEcKKJLPXdVU';
+
+        $headers = [
+            'Authorization:key=' . $serverKey,
+            'Content-Type: application/json',
+        ];
+          $notification = [
+                "title" => $request->title,
+                "body" => $request->body,
+                "icon" => $sender,
+                "click_action" => $request->click_action,
+
+        ];
+         $resp = array();
+        array_push($resp, self::sendWebNotification($url, $headers, $notification, [$receiver]));
+        // array_push($resp,self::sendMobileNotification($url, $headers, $notification));
 
         return $resp;
     }
 
 
-     public function sendMobileNotification($url, $headers, $notification)
+
+     public static function sendMobileNotification($url, $headers, $notification, $users=null)
     {
+        if($users){
+            $selecteds = array();
+            foreach($users as $user){
+               array_push($selecteds,User::where('id',$user['id'])->select('fcm_mobile_key')->first());
+            }
+        }else{
          $FcmToken = User::whereNotNull('fcm_mobile_key')->pluck('fcm_mobile_key')
         ->all();
+        }
 
 if($FcmToken){
         $data = [
@@ -105,7 +133,7 @@ if($FcmToken){
     }
     }
 
-    public function sendWebNotification($url, $headers, $notification)
+    public static function sendWebNotification($url, $headers, $notification)
     {
         $FcmToken = User::whereNotNull('fcm_web_key')->pluck('fcm_web_key')->all();
 if($FcmToken){

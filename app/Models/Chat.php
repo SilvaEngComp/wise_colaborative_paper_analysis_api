@@ -10,8 +10,34 @@ class Chat extends Model
     use HasFactory;
 
     protected $fillable = [
-        "from",
-        "to",
-        "content"
+        "message",
+        "file_path",
+        "sender",
+        "receiver",
+        "receiver_read",
+        "deleted",
     ];
+
+
+    public static function build(Chat $chat){
+
+        $sender = User::find($chat->sender);
+        $receiver = User::find($chat->receiver);
+
+        return [
+            "id"=>$chat->id,
+            "message"=>$chat->message,
+            "file_path"=>$chat->message,
+            "sender"=>[
+                "id"=>$sender->id,
+                "name"=>$sender->name,
+                "image"=>$sender->image,
+            ], "receiver"=>[
+                "id"=>$receiver->id,
+                "name"=>$receiver->name,
+                "image"=>$receiver->image,
+            ],
+            "date"=>$chat->created_at,
+        ];
+    }
 }

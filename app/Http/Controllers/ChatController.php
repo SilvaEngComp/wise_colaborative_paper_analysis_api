@@ -38,11 +38,24 @@ class ChatController extends Controller
             foreach ($messages as $chat) {
                 array_push($chats, Chat::build($chat));
             }
-
+$this->setMessagesRead($sender);
             return $chats;
         }
 
         return null;
+    }
+
+    public function setMessagesRead(User $sender)
+    {
+        if ($sender) {
+            $me=Auth::user();
+           $messages = Chat::where(['sender'=> $sender->id,"receiver"=>$me->id, "deleted"=>0])->get();
+
+           foreach($messages as $message){
+               $message->receiver_read = 1;
+               $message->update();
+           }
+        }
     }
 
     /**
@@ -107,51 +120,4 @@ class ChatController extends Controller
     }
 
 
-    public function setMessagesRead(User $sender)
-    {
-        if ($sender) {
-            $me=Auth::user();
-           $messages = Chat::where(['sender'=> $sender->id,"receiver"=>$me->id, "deleted"=>0])->get();
-
-           foreach($messages as $message){
-               $message->receiver_read = 1;
-               $message->update();
-           }
-        }
-    }
-
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Chat  $chat
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Chat $chat)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Chat  $chat
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Chat $chat)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Chat  $chat
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Chat $chat)
-    {
-        //
-    }
 }

@@ -14,44 +14,75 @@ class ChatController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(User $user)
+    public function index(User $receiver, User $sender)
     {
-        if ($user) {
-            $userFrom = Auth::user();
-            $userTo = $user;
-
+        if ($receiver && $sender) {
             $messages = Chat::where(
-                function ($query) use ($userTo, $userFrom) {
+                function ($query) use ($receiver, $sender) {
                     $query->where([
-                        'from' => $userFrom,
-                        'to' => $userTo
+                        'sender' => $sender->id,
+                        'receiver' => $receiver->id
                     ]);
                 }
             )
                 ->orWhere(
-                    function ($query) use ($userTo, $userFrom) {
+                    function ($query) use ($receiver, $sender) {
                         $query->where([
-                            'to' => $userFrom,
-                            'from' => $userTo
+                            'receiver' => $sender->id,
+                            'sender' => $receiver->id
                         ]);
                     }
                 )->orderBy('created_at', 'ASC')->get();
 
-
-                return $messages;
+            $chats = array();
+            foreach ($messages as $chat) {
+                array_push($chats, Chat::build($chat));
+                $chat->receiver_read = 1;
+                $chat->update();
+            }
+            return $chats;
         }
 
         return null;
     }
+
 
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public static function getUsers()
     {
-        //
+
+        $receiver = Auth::user();
+        $users = User::all()->where('id', '!=', $receiver->id);
+        $chatUsers = array();
+        foreach ($users as $sender) {
+            $messages = Chat::where(['sender' => $sender->id, "receiver" => $receiver->id, "deleted" => 0])->get();
+            $chatConfig = ChatConfigController::index($receiver, $sender);
+
+            if (!$chatConfig) {
+                $chatConfig = ChatConfigController::create($receiver, $sender);
+            }
+            $notRead = 0;
+            foreach ($messages as $msg) {
+                if ($msg->receiver_read == 0) {
+                    $notRead++;
+                }
+            }
+            array_push($chatUsers, array(
+                "user" => [
+                    "id" => $sender->id,
+                    "name" => $sender->name,
+                    "image" => $sender->image,
+                ],
+                "notRead" => $notRead,
+                "chatConfig" => $chatConfig,
+                "lastMessage" => end($messages),
+            ));
+        }
+        return $chatUsers;
     }
 
     /**
@@ -60,49 +91,48 @@ class ChatController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, User $to)
+    public function store(Request $request)
     {
-        if($to){
-        Chat::create([
-"from"=>Auth::user()->id,
-"to"=>$to->id,
-"message"=> $request->input('message')
-        ]);
+        $receiver = User::find($request->input('receiver.id'));
+        $sender = User::find($request->input('sender.id'));
+        if ($receiver) {
+            Chat::create([
+                "sender" => $request->input('sender.id'),
+                "receiver" => $request->input('receiver.id'),
+                "message" => $request->input('message'),
+                "date" => $request->input('date'),
+            ]);
+
+            $push = new Request([
+                "title" => "Você receveu uma mensagem",
+                "body" => $sender->name . ": " . $request->input('message'),
+                "icon" => "",
+                "click_action" => "3"
+            ]);
+
+
+            PushNotificationController::sendChat($push, $sender, $receiver);
+            return $this->index($receiver, $sender);
         }
+
+        return response(["message" => "usuário não está mais cadastrado"], 404);
     }
 
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Chat  $chat
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Chat $chat)
+    public function destroy(Chat $chat, $op)
     {
-        //
-    }
+        if ($op == 1) {
+            $chat->delete();
+        } else {
+            $chat->deleted = 1;
+        }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Chat  $chat
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Chat $chat)
-    {
-        //
-    }
+        $receiver = User::find($chat->receiver);
+        $sender = User::find($chat->sender);
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Chat  $chat
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Chat $chat)
-    {
-        //
+        $push = new Request();
+        PushNotificationController::sendChat($push, $sender, $receiver, true);
+
+        return $this->index($receiver, $sender);
     }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ChatConfigController;
 use App\Http\Controllers\InstituitionController;
 use App\Http\Controllers\PaperController;
 use App\Http\Controllers\PaperReviewController;
@@ -46,9 +47,18 @@ Route::group([
          Route::delete("users", [UserController::class,"destroy"]);
          Route::patch("users/policy/{user}", [UserController::class,"updatePolicy"]);
     });
-    Route::name("chat.")->group(function () {
-         Route::get("chat", [ChatController::class,"index"]);
+    Route::name("chats.")->group(function () {
+         Route::get("chats/receiver/{receiver}/sender/{sender}", [ChatController::class,"index"]);
+         Route::get("chats/getUsers", [ChatController::class,"getUsers"]);
+         Route::get("chats/messagesRead/user/{sender}", [ChatController::class,"setMessagesRead"]);
+         Route::post("chats", [ChatController::class,"store"]);
+         Route::delete("chats/{chat}/op/{op}", [ChatController::class,"destroy"]);
 
+
+});
+
+    Route::name("chat_configs.")->group(function () {
+         Route::patch("chat_configs/{chatConfig}", [ChatConfigController::class,"update"]);
 });
 
 

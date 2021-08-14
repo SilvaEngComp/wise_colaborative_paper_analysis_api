@@ -34,10 +34,17 @@ class NotificationController extends Controller
      */
     public static function store($message, Review $review, User $user, $invitation=false)
     {
+        if($review){
       $notification = Notification::create([
           'message'=>$message,
           "review_id"=>$review->id,
           ]);
+        }else{
+           $notification = Notification::create([
+          'message'=>$message,
+          ]);
+
+        }
 
           NotificationUserController::store($notification, $user, $invitation);
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateChatsTable extends Migration
+class CreateChatConfigsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,11 @@ class CreateChatsTable extends Migration
      */
     public function up()
     {
-        Schema::create('chats', function (Blueprint $table) {
+        Schema::create('chat_configs', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('message',10000)->nulnullableable();
-            $table->string('file_path')->nullable();
-            $table->string('receiver_read')->nullable();
-            $table->unsignedBigInteger('date')->nullable();
-            $table->boolean('deleted')->default(0);
-             $table->unsignedBigInteger('sender');
+            $table->boolean('audio')->default(1);
+            $table->boolean('favorite')->default(0);
+                 $table->unsignedBigInteger('sender');
             $table->unsignedBigInteger('receiver');
             $table->timestamps();
 
@@ -36,6 +33,6 @@ class CreateChatsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('chats');
+        Schema::dropIfExists('chat_configs');
     }
 }

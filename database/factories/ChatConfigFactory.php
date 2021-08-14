@@ -2,17 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Models\NotificationUser;
+use App\Models\ChatConfig;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class NotificationUserFactory extends Factory
+class ChatConfigFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = NotificationUser::class;
+    protected $model = ChatConfig::class;
 
     /**
      * Define the model's default state.

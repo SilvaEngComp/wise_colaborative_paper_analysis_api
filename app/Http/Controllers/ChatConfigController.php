@@ -15,7 +15,7 @@ class ChatConfigController extends Controller
      */
     public static function index(User $receiver, User $sender)
     {
-        return ChatConfig::where(['sender'=> $sender->id,"receiver"=>$receiver->id])->first();
+        return ChatConfig::build(ChatConfig::where(['sender'=> $sender->id,"receiver"=>$receiver->id])->first(), $receiver, $sender);
 
     }
 
@@ -77,7 +77,7 @@ class ChatConfigController extends Controller
                 $chatConfig->audio = $request->input('audio');
             }
             if($request->has('favorite')){
-                $chatConfig->audio = $request->input('audio');
+                $chatConfig->favorite = $request->input('favorite');
             }
 
             $chatConfig->update();
@@ -86,14 +86,5 @@ class ChatConfigController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\ChatConfig  $chatConfig
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(ChatConfig $chatConfig)
-    {
-        //
-    }
+
 }

@@ -74,26 +74,17 @@ class PushNotificationController extends Controller
 
 
         $chatConfig = ChatConfigController::index($receiver, $sender);
-        if(!$delete){
           $notification = [
                 "title" => $request->title,
                 "body" => $request->body,
-                "icon" => [
+                "icon"=>"https://systematicreview.enginydigitaleco.com/assets/icon/favicon.webp",
+                "click_action" => [
                             "chatConfig"=>$chatConfig,
-                            "delete"=>$sender],
-                "click_action" => $request->click_action,
+                            "page"=>'3',
+                            "delete"=>$delete],
 
         ];
-    }else{
-          $notification = [
-                "title" => "",
-                "body" => "",
-                "icon" => [
-                            "chatConfig"=>$chatConfig,
-                            "delete"=>$sender],
-                "click_action" =>"",
-        ];
-    }
+
             $FcmToken = array();
                $token = User::where('id',$receiver->id)->select('fcm_web_key')->first();
          array_push($FcmToken, $token->fcm_web_key);

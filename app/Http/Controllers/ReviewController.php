@@ -128,8 +128,11 @@ class ReviewController extends Controller
      * @param  \App\Models\Review  $review
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Review $review)
+    public function destroy(Review $review, User $user)
     {
-        //
+       if($review){
+        //    $review->delete();
+           return $this->index($user);
+       }
     }
 }

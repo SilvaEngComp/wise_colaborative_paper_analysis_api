@@ -50,6 +50,7 @@ class Paper extends Model
             }
 
             return [
+                'id' => $paper->id,
                 'base_id' => $paper->base_id,
                 'title' => $paper->title,
                 'authors' => $paper->authors,
@@ -72,15 +73,35 @@ class Paper extends Model
                 "relevance" => $paperReview->relevance,
                 "paper_review" => $paperReview->id,
                 "star" => $paperReview->star,
+                "goals" => $paperReview->goals,
+                "main_contribuition" => $paperReview->main_contribuition,
+                "approach" => $paperReview->approach,
+                "techinique" => $paperReview->techinique,
+                "hypothesis" => $paperReview->hypothesis,
+                "evaluation_metrics" => $paperReview->evaluation_metrics,
+                "features" => $paperReview->features,
+                "codelink" => $paperReview->codelink,
+                "relevance" => $paperReview->relevance,
+                "research_methodology" => $paperReview->research_methodology,
+                "future_work" => $paperReview->future_work,
+                "baselines" => $paperReview->baselines,
+                "datasets" => $paperReview->datasets,
+                "languages" => $paperReview->languages,
             ];
         }
     }
 
 
-    public static function paperReview(Review $review)
+    public static function paperReview(Review $review, $discarted=false)
     {
+        if($discarted){
+             return Paper::join('paper_reviews', 'paper_reviews.paper_id', '=', 'papers.id')
+           ->where('paper_reviews.review_id', $review->id)
+            ->where('paper_reviews.discarded', 1)->get();
+        }
         return Paper::join('paper_reviews', 'paper_reviews.paper_id', '=', 'papers.id')
-            ->where('paper_reviews.review_id', $review->id)->get();
+            ->where('paper_reviews.review_id', $review->id)
+            ->where('paper_reviews.discarded', 0)->get();
     }
 
     public static function inputPaper(Base $base, $inst)
@@ -198,6 +219,9 @@ class Paper extends Model
 
         if ($request->has('relevance')) {
             $query = $query->orderBy('paper_reviews.relevance', $request->input('relevance'));
+        }
+        if ($request->has('discarded')) {
+            $query = $query->orderBy('paper_reviews.discarded', $request->input('discarded'));
         }
 
 

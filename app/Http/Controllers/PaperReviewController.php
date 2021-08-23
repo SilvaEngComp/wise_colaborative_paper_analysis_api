@@ -58,6 +58,37 @@ class PaperReviewController extends Controller
             if($request->has('star')){
                 $paperReview->star = $request->input('star');
             }
+            if($request->has('lenguages')){
+                $paperReview->lenguages = $request->input('lenguages');
+            }
+             if($request->has('techinique')){
+                $paperReview->techinique = $request->input('techinique');
+            }
+              if($request->has('approach')){
+                $paperReview->approach = $request->input('approach');
+            }  if($request->has('features')){
+                $paperReview->features = $request->input('features');
+            }if($request->has('goals')){
+                $paperReview->goals = $request->input('goals');
+            }if($request->has('hypothesis')){
+                $paperReview->hypothesis = $request->input('hypothesis');
+            }if($request->has('research_methodology')){
+                $paperReview->research_methodology = $request->input('research_methodology');
+            }if($request->has('algorithm_comolexity')){
+                $paperReview->algorithm_comolexity = $request->input('algorithm_comolexity');
+            }if($request->has('future_work')){
+                $paperReview->future_work = $request->input('future_work');
+            }if($request->has('main_contribuition')){
+                $paperReview->main_contribuition = $request->input('main_contribuition');
+            }if($request->has('datasets')){
+                $paperReview->datasets = $request->input('datasets');
+            }if($request->has('baselines')){
+                $paperReview->baselines = $request->input('baselines');
+            }if($request->has('evaluation_metrics')){
+                $paperReview->evaluation_metrics = $request->input('evaluation_metrics');
+            }if($request->has('codelink')){
+                $paperReview->codelink = $request->input('codelink');
+            }
 
 $paper = Paper::find($paperReview->paper_id);
             $paperReview->update();
@@ -78,6 +109,9 @@ $paper = Paper::find($paperReview->paper_id);
      */
     public function destroy(PaperReview $paperReview)
     {
-        //
+        if($paperReview){
+            $paperReview->discarted = 1;
+            $paperReview->update();
+        }
     }
 }

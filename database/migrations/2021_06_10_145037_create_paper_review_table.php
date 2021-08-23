@@ -18,10 +18,24 @@ class CreatePaperReviewTable extends Migration
             $table->unsignedBigInteger('paper_id');
             $table->unsignedBigInteger('review_id');
             $table->integer('status')->default(0);
-            $table->string('observation')->nullable();
-            $table->string('issue')->nullable();
+            $table->string('observation', 500)->nullable();
+            $table->string('issue', 2000)->nullable();
             $table->integer('relevance')->nullable();
             $table->string('search_terms',500)->nullable();
+            $table->string('techinique',500)->nullable();
+            $table->string('approach',2000)->nullable();
+            $table->string('features',500)->nullable();
+            $table->string('goals',500)->nullable();
+            $table->string('hypothesis',500)->nullable();
+            $table->string('main_contribuition',500)->nullable();
+            $table->string('evaluation_metrics',500)->nullable();
+            $table->string('baselines',500)->nullable();
+            $table->string('datasets',500)->nullable();
+            $table->string('codelink')->nullable();
+            $table->string('research_methodology',500)->nullable();
+            $table->string('algorithm_complexity',500)->nullable();
+            $table->string('future_work',2000)->nullable();
+            $table->string('lenguage',2000)->nullable();
             $table->boolean('star')->nullable();
 
             $table->foreign('paper_id')->references('id')->on('papers')->onDelete('cascade')->onUpdate('cascade');

@@ -96,6 +96,19 @@ class PaperController extends Controller
     public function store(Request $request, Base $base, Review $review)
     {
 
+        $search_terms = $request->input('search_terms');
+        $objects =  explode(',',preg_replace('/[\{\}\[\]\" "]+/','', $request->input('headers')));
+        $headers = array();
+
+        $i=0;
+        for($i=0; $i<count($objects); $i+=2) {
+            $elements1 = explode(':',$objects[$i]);
+            $elements2 = explode(':',$objects[$i+1]);
+            array_push($headers, array(
+                $elements1[1]=>$elements2[1],
+            ));
+        }
+// return $headers;
         $file = $request->file('file');
         $repetidos = array();
         if ($file) {
@@ -103,23 +116,14 @@ class PaperController extends Controller
             $data = array_map('str_getcsv', file($path));
             $csv_data = array_slice($data, 0, count($data));
             unset($csv_data[0]);
-            foreach ($csv_data as $inst) {
-                if (count($inst) > 5) {
-                    $paper = Paper::inputPaper($base, $inst);
-
-                    if($paper){
-                    $search_terms = "";
-                    if ($base->id == 1) {
-                        $search_terms = $inst[17];
-                    }
+            foreach($csv_data as $data) {
+               $paper = Paper::inputPaper($base, $data, $headers, $review);
+               if($paper){
                     PaperReview::create([
                         "paper_id" => $paper->id,
                         "review_id" => $review->id,
                         "search_terms" => $search_terms,
                     ]);
-                }else{
-                    array_push($repetidos, $inst);
-                }
                 }
             }
             return $this->index($review);

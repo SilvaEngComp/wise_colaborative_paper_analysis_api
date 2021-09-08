@@ -29,6 +29,10 @@ class CreatePapersTable extends Migration
             $table->string('doi')->nullable();
             $table->string('link', 500)->nullable();
             $table->string('keywords', 500)->nullable();
+            $table->string('languages')->nullable();
+            $table->string('type')->nullable();
+            $table->string('publisher')->nullable();
+            $table->string('cited_by')->nullable();
 
             $table->foreign('base_id')->references('id')->on('bases')->onDelete('cascade')->onUpdate('cascade');
 

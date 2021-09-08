@@ -35,8 +35,8 @@ class CreatePaperReviewTable extends Migration
             $table->string('research_methodology',500)->nullable();
             $table->string('algorithm_complexity',500)->nullable();
             $table->string('future_work',2000)->nullable();
-            $table->string('lenguage',2000)->nullable();
             $table->boolean('star')->nullable();
+            $table->boolean('discarded')->default(false);
 
             $table->foreign('paper_id')->references('id')->on('papers')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('review_id')->references('id')->on('reviews')->onDelete('cascade')->onUpdate('cascade');

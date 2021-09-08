@@ -27,13 +27,45 @@ class Paper extends Model
         'link',
         'keywords',
         'search_terms',
+        'cited_by',
+        'publisher',
+        'type',
+        'languages',
     ];
 
+
+   public static function calcRelationship(Review $review, Paper $paper){
+
+        $list = explode(',', strtolower($review->include_criteria));
+        $list = array_unique($list);
+
+        $cont = 0;
+        $weight = count($list);
+        for ($i=0; $i<count($list);$i++) {
+            if (strlen($list[$i]) > 0) {
+                $cont += $weight*substr_count(strtolower($paper->abstract), $list[$i]);
+                $weight--;
+            }
+            if($i==1 && $cont==0){
+                break;
+            }
+        }
+
+        return $cont;
+    }
     public static function build(Paper $paper, Review $review)
     {
-       return  $paperReview = PaperReview::where('paper_id', $paper->id)
+        $paperReview = PaperReview::where('paper_id', $paper->id)
             ->where('review_id', $review->id)->first();
         if ($paperReview) {
+            $relationship_level = 0;
+            if($review->include_criteria){
+            $relationship_level = self::calcRelationship($review, $paper);
+            if($paperReview->relationship_level<=0){
+              $paperReview->relationship_level =  $relationship_level;
+              $paperReview->update();
+            }
+        }
             $relevance = null;
             if ($paperReview->relevance) {
                 switch ($paperReview->relevance) {
@@ -63,13 +95,14 @@ class Paper extends Model
                 'issn' => $paper->issn,
                 'isbn' => $paper->isbn,
                 'doi' => $paper->doi,
+                'type' => $paper->type,
                 'link' => $paper->link,
                 'keywords' => $paper->keywords,
                 'search_terms' => $paperReview->search_terms,
                 'status' => $paperReview->status,
                 "observation" => $paperReview->observation,
                 "issue" => $paperReview->issue,
-                "relevanceTex" => $relevance,
+                "relevanceText" => $relevance,
                 "relevance" => $paperReview->relevance,
                 "paper_review" => $paperReview->id,
                 "star" => $paperReview->star,
@@ -87,6 +120,7 @@ class Paper extends Model
                 "baselines" => $paperReview->baselines,
                 "datasets" => $paperReview->datasets,
                 "languages" => $paperReview->languages,
+                "relationship_level" => $relationship_level,
             ];
         }
     }
@@ -121,10 +155,10 @@ class Paper extends Model
                     $link = null;
                     $keywords = null;
                     $language = null;
-                    $type = null;
+                    $type = 'Article';
                     $publisher = null;
                     $cited_by = null;
-                    $search_terms = null;
+
 
             foreach($headers as $header){
                 if(array_key_exists('title', $header)){
@@ -183,14 +217,17 @@ class Paper extends Model
                     $cited_by = $inst[$header['cited_by']];
                 }
 
-                  if(array_key_exists('search_terms', $header)){
-                    $search_terms = $inst[$header['search_terms']];
-                }
             }
 
-               $check = self::check([$doi,$link, $authors, $title], 2);
+               $check = self::check([$doi,$link, $authors, $title]);
 
-                if ($check) {
+               if($check){
+                   $check->type = $type;
+                //    echo "\n".$check->type;
+                   $check->update();
+                   return $check;
+               }
+                else {
                    return Paper::create(
                         [
                         'base_id' => $base->id,
@@ -210,7 +247,7 @@ class Paper extends Model
                         'cited_by' => $cited_by,
                         'publisher' => $publisher,
                         'type' => $type,
-                        'language' => $language,
+                        'languages' => $language,
 
                         ]
                 );
@@ -222,7 +259,6 @@ class Paper extends Model
 
     public static function check($values)
     {
-return $values;
         if ($values[0]!== null) {
             $paper = Paper::where('doi', $values[0])->first();
         } else{
@@ -233,11 +269,7 @@ return $values;
                 $paper = Paper::where('link', $values[3])->first();
             }
         }
-        if ($paper) {
-            return false;
-        }
-
-        return true;
+      return $paper;
     }
 
     public static function filter(Request $request)
@@ -249,19 +281,25 @@ return $values;
         }
 
         if ($request->has('base_id')) {
+            if($request->input('base_id')>0){
             $query = $query->where('papers.base_id', $request->input('base_id'));
+        }
         }
 
         if ($request->has('discarded')) {
             $query = $query->where('paper_reviews.discarded', $request->input('discarded'));
         }
+
+         if ($request->has('analysed')) {
+            $query = $query->where('paper_reviews.relevance','>',0);
+        }
+
         if ($request->has('status')) {
             $query = $query->orderBy('paper_reviews.status', 'desc');
         }
 
-        if ($request->has('relevance')) {
-            $query = $query->orderBy('paper_reviews.relevance', $request->input('relevance'));
-        }
+        $query = $query->orderBy('paper_reviews.relevance','desc');
+
 
         $query->select("papers.id",
         "base_id",
@@ -276,6 +314,7 @@ return $values;
         "issn",
         "isbn",
         "doi",
+        "type",
         "link",
         "keywords",
         "cited_by",

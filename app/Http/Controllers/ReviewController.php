@@ -62,16 +62,6 @@ class ReviewController extends Controller
         return Response(['message'=>'Projeto não enctontrado'],404);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Review  $review
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Review $review)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -91,26 +81,13 @@ class ReviewController extends Controller
         }
         if($request->has('description')){
             $review->title = $request->input('title');
+        }   if($request->has('include_criteria')){
+            $review->include_criteria = $request->input('include_criteria');
+        } if($request->has('exclude_criteria')){
+            $review->exclude_criteria = $request->input('exclude_criteria');
         }
 
         $review->update();
-
-        if($request->has('includeCriteria')){
-            foreach($request->input('includeCriteria') as $criteria){
-                if(array_key_exists('answare', $criteria)){
-            ProtocolController::store($criteria, $review);
-
-                }
-            }
-        }
-        if($request->has('excludeCriteria')){
-            foreach($request->input('includeCriteria') as $criteria){
-             if(array_key_exists('answare', $criteria)){
-            ProtocolController::store($criteria, $review);
-
-                }
-            }
-        }
 
         if($request->has('areas')){
             ReviewAreaController::update($request, $review);
@@ -131,7 +108,7 @@ class ReviewController extends Controller
     public function destroy(Review $review, User $user)
     {
        if($review){
-        //    $review->delete();
+           $review->delete();
            return $this->index($user);
        }
     }

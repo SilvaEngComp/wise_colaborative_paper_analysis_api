@@ -34,6 +34,8 @@ class Review extends Model
             "question"=>$review->question,
             "description"=>$review->description,
             "instituition"=>$review->title,
+            "include_criteria"=>$review->include_criteria,
+            "exclude_criteria"=>$review->exclude_criteria,
             "areas"=>self::areas($review),
             "members"=>$members,
         ];

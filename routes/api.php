@@ -75,7 +75,7 @@ Route::name("reviews.")->group(function () {
          Route::get("reviews/user/{user}", [ReviewController::class,"index"]);
          Route::post("reviews", [ReviewController::class,"store"]);
          Route::patch("reviews/{review}", [ReviewController::class,"update"]);
-         Route::delete("reviews", [ReviewController::class,"destroy"]);
+         Route::delete("reviews/{review}/user/{user}", [ReviewController::class,"destroy"]);
 
 });
 

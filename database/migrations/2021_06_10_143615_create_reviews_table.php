@@ -18,6 +18,8 @@ class CreateReviewsTable extends Migration
             $table->string('title');
             $table->string('question')->nullable();
             $table->string('description')->nullable();
+            $table->string('include_criteria',500)->nullable();
+            $table->string('exclude_criteria',500)->nullable();
             $table->unsignedBigInteger('instituition_id')->nullable();
             $table->timestamps();
             $table->foreign('instituition_id')->references('id')->on('instituitions')->onDelete('SET NULL')->onUpdate('CASCADE');

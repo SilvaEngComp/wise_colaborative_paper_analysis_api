@@ -42,7 +42,6 @@ class PaperReviewController extends Controller
     public function update(Request $request, PaperReview $paperReview)
     {
         if($paperReview){
-            if($paperReview){
             if($request->has('relevance')){
                 $paperReview->relevance = $request->input('relevance');
             }
@@ -90,14 +89,13 @@ class PaperReviewController extends Controller
                 $paperReview->codelink = $request->input('codelink');
             }
 
-$paper = Paper::find($paperReview->paper_id);
+            $paper = Paper::find($paperReview->paper_id);
             $paperReview->update();
             $request = new Request(['review_id' => $paperReview->review_id, "base_id"=>$paper->base_id]);
 
 
         return PaperController::show($request);
 
-        }
         }
     }
 

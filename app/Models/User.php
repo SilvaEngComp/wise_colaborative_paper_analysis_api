@@ -33,7 +33,7 @@ class User extends Authenticatable implements JWTSubject
     public static function reviews(User $user){
 
         return Review::join('review_users','review_users.review_id','=','reviews.id')
-        ->select('review_id as id', 'title','question','description', 'instituition_id','accepted')
+        ->select('review_id as id', 'title','question','description', 'include_criteria','exclude_criteria','instituition_id','accepted')
         ->where('review_users.user_id',$user->id)->get();
     }
 

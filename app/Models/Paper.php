@@ -121,6 +121,7 @@ class Paper extends Model
                 "datasets" => $paperReview->datasets,
                 "languages" => $paperReview->languages,
                 "relationship_level" => $relationship_level,
+                "updated_at" =>$paperReview->updated_at,
             ];
         }
     }
@@ -339,7 +340,9 @@ class Paper extends Model
         "future_work",
         "languages",
         "star",
-        "discarded");
+        "discarded",
+        "paper_reviews.updated_at",
+    );
 
 
         return $query->get();

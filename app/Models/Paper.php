@@ -117,6 +117,7 @@ class Paper extends Model
                 "relevance" => $paperReview->relevance,
                 "research_methodology" => $paperReview->research_methodology,
                 "future_work" => $paperReview->future_work,
+                "open_works" => $paperReview->open_works,
                 "baselines" => $paperReview->baselines,
                 "datasets" => $paperReview->datasets,
                 "languages" => $paperReview->languages,

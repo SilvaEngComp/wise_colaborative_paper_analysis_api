@@ -7,7 +7,7 @@ use App\Models\Paper;
 use App\Models\PaperReview;
 use App\Models\Review;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Mail;
 
 class PaperController extends Controller
 {
@@ -38,6 +38,15 @@ class PaperController extends Controller
 
         return $list;
     }
+
+      public function mtrEmail(Request $request){
+        $file = $request->file('file');
+        $date = date('Y-m-d');
+        $path = $file->storeAs('mtrs', "$date.".$file->getClientOriginalExtension(), 'public');
+        Mail::send(new \App\Mail\mtr($path));
+        return response(['message'=>'email enviado com sucesso!'],200);
+
+     }
 
     public function mainTerms(Review $review)
     {

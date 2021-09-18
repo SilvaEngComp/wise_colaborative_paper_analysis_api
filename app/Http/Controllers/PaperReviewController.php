@@ -42,6 +42,7 @@ class PaperReviewController extends Controller
     public function update(Request $request, PaperReview $paperReview)
     {
         if($paperReview){
+            if($paperReview){
             if($request->has('relevance')){
                 $paperReview->relevance = $request->input('relevance');
             }
@@ -73,10 +74,12 @@ class PaperReviewController extends Controller
                 $paperReview->hypothesis = $request->input('hypothesis');
             }if($request->has('research_methodology')){
                 $paperReview->research_methodology = $request->input('research_methodology');
-            }if($request->has('algorithm_comolexity')){
-                $paperReview->algorithm_comolexity = $request->input('algorithm_comolexity');
+            }if($request->has('algorithm_complexity')){
+                $paperReview->algorithm_comolexity = $request->input('algorithm_complexity');
             }if($request->has('future_work')){
                 $paperReview->future_work = $request->input('future_work');
+            }if($request->has('open_works')){
+                $paperReview->open_works = $request->input('open_works');
             }if($request->has('main_contribuition')){
                 $paperReview->main_contribuition = $request->input('main_contribuition');
             }if($request->has('datasets')){
@@ -89,13 +92,14 @@ class PaperReviewController extends Controller
                 $paperReview->codelink = $request->input('codelink');
             }
 
-            $paper = Paper::find($paperReview->paper_id);
+$paper = Paper::find($paperReview->paper_id);
             $paperReview->update();
             $request = new Request(['review_id' => $paperReview->review_id, "base_id"=>$paper->base_id]);
 
 
         return PaperController::show($request);
 
+        }
         }
     }
 

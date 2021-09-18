@@ -35,6 +35,7 @@ class CreatePaperReviewTable extends Migration
             $table->string('research_methodology',500)->nullable();
             $table->string('algorithm_complexity',500)->nullable();
             $table->string('future_work',2000)->nullable();
+            $table->string('open_works',2000)->nullable();
             $table->boolean('star')->nullable();
             $table->boolean('discarded')->default(false);
 
